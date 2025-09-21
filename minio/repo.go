@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/minio/minio-go/v7"
 	"io"
 	"os"
+
+	"github.com/minio/minio-go/v7"
 )
 
 type MinIOFileRepository struct {
@@ -19,7 +20,7 @@ func NewMinIOFileRepository(m *Minio) *MinIOFileRepository {
 
 // UploadPublicFile uploads the file to MinIO, ensures the bucket exists, and returns the file's public URL
 // UploadPublicFile uploads the file to MinIO, ensures the bucket exists, and returns the file's public URL
-func (r *MinIOFileRepository) UploadPublicFile(ctx context.Context, bucketName, objectName, contentType string, file io.Reader) error {
+func (r *MinIOFileRepository) UploadPublicFile(ctx context.Context, bucketName, objectName, contentType string, file io.Reader, metadata map[string]string) error {
 	var size int64
 
 	// Check if it's a bytes.Reader to get size directly
@@ -46,6 +47,7 @@ func (r *MinIOFileRepository) UploadPublicFile(ctx context.Context, bucketName, 
 	_, err := r.m.M.PutObject(ctx, bucketName, objectName, file, size, minio.PutObjectOptions{
 		ContentType:      contentType,
 		DisableMultipart: r.m.DisableMultiPart,
+		UserMetadata:     metadata,
 	})
 	return err
 }
